@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Plataforma ESG 2.0 - Medición de Impacto PYMEs</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 p-8">
+  <div class="max-w-4xl mx-auto bg-white shadow-lg rounded-xl p-8 border border-slate-200">
+    <h1 class="text-2xl font-bold text-emerald-700 mb-2">Plataforma de Transformación Sostenible 2.0</h1>
+    <p class="text-sm text-slate-500 mb-6">Evaluación automatizada de métricas Ambientales, Sociales y de Gobernanza (ESG) alineada con los ODS.</p>
+
+    <form id="esgForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-xs font-semibold uppercase text-slate-600">Razón Social</label>
+        <input type="text" id="company_name" value="EcoPyme Ibérica S.L." class="w-full border p-2 rounded mt-1" required>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold uppercase text-slate-600">CIF / NIF</label>
+        <input type="text" id="cif" value="B98765432" class="w-full border p-2 rounded mt-1" required>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold uppercase text-slate-600">% Energía Renovable (0-100)</label>
+        <input type="number" id="renewable_energy_pct" value="65" min="0" max="100" class="w-full border p-2 rounded mt-1">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold uppercase text-slate-600">% Reciclaje de Residuos (0-100)</label>
+        <input type="number" id="recycling_rate_pct" value="70" min="0" max="100" class="w-full border p-2 rounded mt-1">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold uppercase text-slate-600">% Mujeres en Dirección (0-100)</label>
+        <input type="number" id="women_in_leadership_pct" value="45" min="0" max="100" class="w-full border p-2 rounded mt-1">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold uppercase text-slate-600">% Contratos Indefinidos (0-100)</label>
+        <input type="number" id="permanent_contracts_pct" value="90" min="0" max="100" class="w-full border p-2 rounded mt-1">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold uppercase text-slate-600">Horas Formación / Empleado</label>
+        <input type="number" id="training_hours" value="25" min="0" class="w-full border p-2 rounded mt-1">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold uppercase text-slate-600">% Proveedores Locales (Km 0)</label>
+        <input type="number" id="local_suppliers_pct" value="80" min="0" max="100" class="w-full border p-2 rounded mt-1">
+      </div>
+
+      <div class="col-span-1 md:col-span-2 flex flex-wrap gap-6 mt-2">
+        <label class="flex items-center gap-2 text-sm">
+          <input type="checkbox" id="has_carbon_plan" checked> Plan de Huella de Carbono activo
+        </label>
+        <label class="flex items-center gap-2 text-sm">
+          <input type="checkbox" id="has_ethics_code"> Código Ético y Canal de Denuncias
+        </label>
+        <label class="flex items-center gap-2 text-sm">
+          <input type="checkbox" id="data_privacy_audited" checked> Auditoría RGPD vigente
+        </label>
+      </div>
+
+      <div class="col-span-1 md:col-span-2 mt-4">
+        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-lg transition">
+          Generar Informe y Diagnóstico ESG
+        </button>
+      </div>
+    </form>
+
+    <div id="resultBox" class="hidden mt-8 border-t pt-6">
+      <div class="flex justify-between items-center bg-emerald-50 p-4 rounded-lg border border-emerald-200">
+        <div>
+          <h2 class="text-lg font-bold text-emerald-900" id="resCompany"></h2>
+          <p class="text-sm text-emerald-700" id="resRating"></p>
+        </div>
+        <div class="text-3xl font-extrabold text-emerald-700" id="resTotal"></div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-4 my-4 text-center">
+        <div class="p-3 bg-slate-100 rounded">
+          <span class="block text-xs text-slate-500">Ambiental (E)</span>
+          <strong class="text-lg" id="resE"></strong>
+        </div>
+        <div class="p-3 bg-slate-100 rounded">
+          <span class="block text-xs text-slate-500">Social (S)</span>
+          <strong class="text-lg" id="resS"></strong>
+        </div>
+        <div class="p-3 bg-slate-100 rounded">
+          <span class="block text-xs text-slate-500">Gobernanza (G)</span>
+          <strong class="text-lg" id="resG"></strong>
+        </div>
+      </div>
+
+      <h3 class="font-semibold text-sm uppercase text-slate-600 mt-4">Plan de Acción Recomendado:</h3>
+      <ul id="resPlan" class="list-disc pl-5 text-sm text-slate-700 mt-2 space-y-1"></ul>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('esgForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        company_name: document.getElementById('company_name').value,
+        cif: document.getElementById('cif').value,
+        sector: "General",
+        employees: 50,
+        renewable_energy_pct: parseFloat(document.getElementById('renewable_energy_pct').value),
+        recycling_rate_pct: parseFloat(document.getElementById('recycling_rate_pct').value),
+        has_carbon_footprint_plan: document.getElementById('has_carbon_plan').checked,
+        women_in_leadership_pct: parseFloat(document.getElementById('women_in_leadership_pct').value),
+        permanent_contracts_pct: parseFloat(document.getElementById('permanent_contracts_pct').value),
+        training_hours_per_employee: parseFloat(document.getElementById('training_hours').value),
+        has_ethics_code: document.getElementById('has_ethics_code').checked,
+        local_suppliers_pct: parseFloat(document.getElementById('local_suppliers_pct').value),
+        data_privacy_audited: document.getElementById('data_privacy_audited').checked
+      };
+
+      const res = await fetch('/api/v2/evaluate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+
+      document.getElementById('resultBox').classList.remove('hidden');
+      document.getElementById('resCompany').textContent = `${data.company_name} (${data.cif})`;
+      document.getElementById('resRating').textContent = `Calificación: ${data.rating}`;
+      document.getElementById('resTotal').textContent = `${data.total_score} / 100`;
+      document.getElementById('resE').textContent = data.scores.environmental;
+      document.getElementById('resS').textContent = data.scores.social;
+      document.getElementById('resG').textContent = data.scores.governance;
+
+      const planList = document.getElementById('resPlan');
+      planList.innerHTML = '';
+      data.action_plan.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item;
+        planList.appendChild(li);
+      });
+    });
+  </script>
+</body>
+</html>
